@@ -3,6 +3,15 @@ package sample;
 public abstract class Bike implements BikeParts {
 
   private String handleBars, frame, tyres, seatType;
+
+  public int getNumGears() {
+    return NumGears;
+  }
+
+  public void setNumGears(int numGears) {
+    NumGears = numGears;
+  }
+
   private int NumGears;
   private final String make;
 
