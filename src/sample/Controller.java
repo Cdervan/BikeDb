@@ -2,6 +2,8 @@ package sample;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -30,19 +32,59 @@ public class Controller {
   @FXML
   private Button btnAddBike;
 
-  ObservableList<Bike> bikes;
+  private ObservableList<Bike> bikes;
 
   @FXML
-  void addBike(ActionEvent event) {
-bikes.add(new MountainBike());
-
+  void addBike(ActionEvent event) throws SQLException {
+    saveToDB();
+    bikes.clear();
+    loadBikeList();
   }
-    public void initialize() {
+
+  private void loadBikeList() throws SQLException {
+    String sql = "SELECT * FROM Bike";
+
+    ResultSet rs = stmt.executeQuery(sql);
+    while (rs.next()) {
+      String make = rs.getString(1);
+      String hb = rs.getString(2);
+      String frame = rs.getString(3);
+      String type = rs.getString(4);
+      String seat = rs.getString(5);
+      Integer numGears = rs.getInt(6);
+      // (String handleBars, String frame, String tyres, String seatType, int numGears, String suspension, String type, int frameSize)
+      Bike bikeFromDB = new MountainBike(hb, frame, "tires", seat, numGears, "susp", type, 29);
+      bikes.add(bikeFromDB);
+    }
+  }
+
+  void saveToDB() {
+    try {
+      System.out.println("Attempting INSERT");
+      String sql = "INSERT INTO Bike (Make, Handlebars, Frame, Tyres, SeatType, NumGears) "
+          + "VALUES ('Huffy', 'Cruiser', 'Diamond', 'Fat', 'Comfort', 1);";
+      stmt.executeUpdate(sql);
+      System.out.println("INSERT Successful");
+    } catch (SQLException se) {
+      se.printStackTrace();
+      Alert a = new Alert(Alert.AlertType.ERROR);
+      a.show();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void initialize() throws SQLException {
     initializeDB();
     bikes = FXCollections.observableArrayList();
-      colHandleBars.setCellValueFactory(new PropertyValueFactory("handleBars"));
-      colNumGears.setCellValueFactory(new PropertyValueFactory("NumGears"));
-      tvBikes.setItems(bikes);
+    setupTable();
+    loadBikeList();
+  }
+
+  public void setupTable() {
+    colHandleBars.setCellValueFactory(new PropertyValueFactory("handleBars"));
+    colNumGears.setCellValueFactory(new PropertyValueFactory("NumGears"));
+    tvBikes.setItems(bikes);
   }
 
   private void initializeDB() {
