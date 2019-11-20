@@ -1,5 +1,9 @@
 package sample;
 
+/**
+ * This is the base class for all bikes.
+ * @author sdvansel
+ */
 public abstract class Bike implements BikeParts {
 
   private String handleBars, frame, tyres, seatType;
